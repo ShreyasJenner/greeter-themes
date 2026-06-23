@@ -1,69 +1,22 @@
-//function createSplatter(x, y, rainContainer) {
-//    for (let i = 0; i < 3 + Math.random() * 3; i++) { // 3 to 6 droplets
-//        const splatter = document.createElement('div');
-//        splatter.classList.add('splatter');
-//        
-//        // Randomize position within a small radius
-//        const offsetX = (Math.random() - 0.5) * 10; // Spread within 10px
-//        const offsetY = (Math.random() - 0.5) * 5;
-//
-//        splatter.style.left = `${x + offsetX}px`;
-//        splatter.style.bottom = `${y + offsetY}px`;
-//
-//        rainContainer.appendChild(splatter);
-//
-//        // Remove splatter after animation
-//        setTimeout(() => {
-//            splatter.remove();
-//        }, 400);
-//    }
-//}
-//
-//function createRainDrop(rainContainer) {
-//    const rainDrop = document.createElement('div');
-//    rainDrop.classList.add('rain-drop');
-//
-//    const leftPos = Math.random() * window.innerWidth;
-//    rainDrop.style.left = `${leftPos}px`;
-//
-//    const fallDuration = 0.5 + Math.random() * 0.5;
-//    rainDrop.style.animationDuration = `${fallDuration}s`;
-//
-//    rainDrop.style.opacity = Math.random();
-//
-//    rainContainer.appendChild(rainDrop);
-//
-//    setTimeout(() => {
-//        createSplatter(leftPos, 162, rainContainer);
-//        rainDrop.remove();
-//    }, fallDuration * 1000);
-//}
-//
-//function createRain() {
-//    const rainContainer = document.querySelector('body');
-//    setInterval(createRainDrop, 20, rainContainer);
-//}
-//
 const video = document.querySelector('video');
 const animationRunTime = 2500;
-//const startTime = 0.5;
-//const endTime = 0.9;
-//
-//// function to loop segment
-//function loopSegment() {
-//    if(video.currentTime >= endTime) {
-//	    video.currentTime = startTime;
-//	    video.play();
-//    }
-//}
+const nptStart = 0;   // seconds — start of the boss fight clip
+const nptEnd = 4;     // seconds — end of the boss fight clip
 
-// function to start video
+// function to start video — seeks to nptStart, plays, then pauses at nptEnd
 function startVideo() {
-    // remove the loop event listener
-    //video.removeEventListener('timeupdate', loopSegment);
-
-    video.playbackRate = 1.6
+    video.currentTime = nptStart;
+    video.playbackRate = 1.6;
     video.play();
+
+    // stop playback once we hit the end of the npt segment
+    function onTimeUpdate() {
+        if (video.currentTime >= nptEnd) {
+            video.pause();
+            video.removeEventListener('timeupdate', onTimeUpdate);
+        }
+    }
+    video.addEventListener('timeupdate', onTimeUpdate);
 }
 
 // function to start post authentication animation
@@ -118,9 +71,6 @@ async function initListener() {
     const passtext = document.getElementById('password');
     const btn = document.getElementById('login-button');
 
-    // loop the first second of the video
-    //video.addEventListener('timeupdate', loopSegment);
-
     // event listener to get login when button is clicked
     btn.addEventListener('click', async () => {
         const authenticated = await authenticate(usertext.value.trim(), passtext.value.trim());
@@ -152,9 +102,6 @@ async function initListener() {
             }
         }
     });
-
-    // add rain
-    //createRain();
 
     // add power button handling
     powerbuttonHandling();
